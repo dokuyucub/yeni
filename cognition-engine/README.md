@@ -30,7 +30,8 @@ cognition-engine/
 │   └── api/             # FastAPI backend service
 ├── packages/
 │   └── shared/          # Shared TypeScript types & schemas
-├── infra/               # Infrastructure configs (coming soon)
+├── infra/
+│   └── supabase/        # Supabase local dev + migrations
 ├── docs/                # Documentation
 └── .github/workflows/   # CI/CD pipelines
 ```
@@ -63,12 +64,17 @@ cognition-engine/
    curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
-5. **Expo CLI**
+5. **Docker Desktop** (for local Supabase)
    ```bash
-   pnpm add -g expo-cli
+   brew install --cask docker
    ```
 
-6. **Expo Go app** on your iOS/Android device (for mobile testing)
+6. **Supabase CLI**
+   ```bash
+   brew install supabase/tap/supabase
+   ```
+
+7. **Expo Go app** on your iOS/Android device (for mobile testing)
 
 ## Getting Started
 
@@ -83,75 +89,108 @@ cd cognition-engine
 pnpm install
 
 # Set up Python environment
-cd services/api
-uv venv
-uv sync --dev
-cd ../..
+pnpm setup:api
 ```
 
-### 2. Configure Environment
+### 2. Start Local Supabase
+
+```bash
+# Start Supabase (first time takes a few minutes for Docker images)
+cd infra/supabase
+supabase start
+
+# View connection info
+supabase status
+```
+
+You'll see output like:
+```
+         API URL: http://127.0.0.1:54321
+     GraphQL URL: http://127.0.0.1:54321/graphql/v1
+          DB URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      Studio URL: http://127.0.0.1:54323
+        anon key: eyJhbGci...
+service_role key: eyJhbGci...
+      JWT secret: super-secret-jwt-token-with-at-least-32-characters-long
+```
+
+### 3. Configure Environment
 
 ```bash
 # Copy environment templates
 cp apps/mobile/.env.example apps/mobile/.env
 cp services/api/.env.example services/api/.env
-
-# Edit the .env files with your configuration
-# - Supabase credentials
-# - Anthropic API key
-# - etc.
 ```
 
-### 3. Start Development Servers
+The `.env.example` files contain local Supabase defaults. For production, update with your hosted Supabase credentials.
 
-**Terminal 1 - API Server:**
+### 4. Start Development Servers
+
+**Terminal 1 - Supabase** (if not already running):
+```bash
+cd infra/supabase && supabase start
+```
+
+**Terminal 2 - API Server:**
 ```bash
 pnpm dev:api
-# Or directly:
-cd services/api
-source .venv/bin/activate
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-**Terminal 2 - Mobile App:**
+**Terminal 3 - Mobile App:**
 ```bash
 pnpm dev:mobile
-# Or directly:
-cd apps/mobile
-pnpm dev
 ```
 
-### 4. Access the App
+### 5. Access the App
 
-- **API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
-- **Mobile**: Scan QR code with Expo Go app, or press `i` for iOS simulator / `a` for Android emulator
+| Service | URL |
+|---------|-----|
+| API | http://localhost:8000 |
+| API Docs | http://localhost:8000/docs |
+| Supabase Studio | http://127.0.0.1:54323 |
+| Mobile | Scan QR code with Expo Go |
 
 ## Development Commands
 
 ### Root Commands
 
 ```bash
-# Start mobile app
-pnpm dev:mobile
+# Start services
+pnpm dev:mobile          # Start Expo dev server
+pnpm dev:api             # Start FastAPI server
 
-# Start API server
-pnpm dev:api
+# Code quality
+pnpm lint                # Run all linters
+pnpm lint:fix            # Fix lint issues
+pnpm typecheck           # TypeScript type check
 
-# Run all linters
-pnpm lint
+# Testing
+pnpm test                # Run all tests
+pnpm test:ts             # TypeScript tests only
+pnpm test:py             # Python tests only
 
-# Fix lint issues
-pnpm lint:fix
+# Setup
+pnpm setup:api           # Set up Python environment
+pnpm clean               # Clean all dependencies
+```
 
-# Run type checking
-pnpm typecheck
+### Supabase Commands
 
-# Run all tests
-pnpm test
+```bash
+cd infra/supabase
 
-# Clean all dependencies
-pnpm clean
+# Lifecycle
+supabase start           # Start local Supabase
+supabase stop            # Stop local Supabase
+supabase status          # View connection info
+
+# Database
+supabase db reset        # Reset DB (apply migrations + seed)
+supabase migration list  # View migration status
+supabase migration new <name>  # Create new migration
+
+# Generate types
+supabase gen types typescript --local > ../../packages/shared/src/types/database.ts
 ```
 
 ### Mobile App (apps/mobile)
@@ -170,34 +209,38 @@ pnpm test         # Run Jest tests
 
 ```bash
 cd services/api
+
+# Using uv (recommended)
+uv run uvicorn app.main:app --reload
+uv run pytest
+uv run ruff check .
+
+# Or activate venv first
 source .venv/bin/activate
-
-uvicorn app.main:app --reload    # Start dev server
-pytest                            # Run tests
-pytest --cov=app                  # Run tests with coverage
-ruff check .                      # Lint Python code
-ruff format .                     # Format Python code
-```
-
-### Shared Package (packages/shared)
-
-```bash
-cd packages/shared
-
-pnpm typecheck    # TypeScript type check
-pnpm test         # Run Jest tests
-pnpm build        # Build package
+uvicorn app.main:app --reload
+pytest
 ```
 
 ## API Endpoints
 
-### Health Check
+### Public Endpoints
 
 ```bash
+# Health check
 curl http://localhost:8000/health
 ```
 
-Response:
+### Protected Endpoints
+
+```bash
+# Get current user (requires Supabase JWT)
+curl -H "Authorization: Bearer <your-jwt-token>" \
+     http://localhost:8000/users/me
+```
+
+### Response Examples
+
+**Health Check:**
 ```json
 {
   "status": "healthy",
@@ -206,34 +249,38 @@ Response:
 }
 ```
 
-## Testing
-
-### TypeScript Tests
-
-```bash
-# Run all TS tests
-pnpm test:ts
-
-# Run specific package tests
-pnpm --filter @cognition-engine/mobile test
-pnpm --filter @cognition-engine/shared test
+**User Me:**
+```json
+{
+  "id": "uuid-here",
+  "email": "user@example.com",
+  "role": "authenticated"
+}
 ```
 
-### Python Tests
+## Database Schema
 
-```bash
-cd services/api
-source .venv/bin/activate
+See [docs/SUPABASE.md](docs/SUPABASE.md) for full schema documentation.
 
-# Run all tests
-pytest
+### Tables
 
-# Run with coverage
-pytest --cov=app --cov-report=html
+| Table | Description |
+|-------|-------------|
+| `decisions` | Core decision entities |
+| `options` | Decision alternatives |
+| `criteria` | Evaluation criteria |
+| `assumptions` | Key assumptions |
+| `decision_graphs` | Versioned graph structures |
+| `simulations` | Monte Carlo results |
+| `recommendations` | AI recommendations |
+| `checkins` | Post-decision tracking |
 
-# Run specific test file
-pytest tests/test_health.py
-```
+### Row Level Security
+
+All tables have RLS enabled:
+- Users can only access their own decisions
+- Child tables (options, criteria, etc.) inherit access via decision ownership
+- Service role key bypasses RLS (backend only)
 
 ## Environment Variables
 
@@ -243,29 +290,56 @@ pytest tests/test_health.py
 |----------|-------------|
 | `EXPO_PUBLIC_API_URL` | Backend API URL |
 | `EXPO_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (public) |
 | `EXPO_PUBLIC_ENV` | Environment (development/production) |
 
 ### API Service (.env)
 
 | Variable | Description |
 |----------|-------------|
-| `HOST` | Server host |
-| `PORT` | Server port |
-| `ENV` | Environment |
-| `DEBUG` | Enable debug mode |
-| `LOG_LEVEL` | Logging level |
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_ANON_KEY` | Supabase anonymous key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (secret!) |
+| `SUPABASE_JWT_SECRET` | JWT secret for offline verification |
 | `ANTHROPIC_API_KEY` | Anthropic (Claude) API key |
 | `CORS_ORIGINS` | Allowed CORS origins |
-| `SECRET_KEY` | Application secret key |
+
+## Testing
+
+### TypeScript Tests
+
+```bash
+pnpm test:ts
+
+# Specific packages
+pnpm --filter @cognition-engine/mobile test
+pnpm --filter @cognition-engine/shared test
+```
+
+### Python Tests
+
+```bash
+cd services/api
+uv run pytest
+
+# With coverage
+uv run pytest --cov=app --cov-report=html
+```
+
+### RLS Policy Tests
+
+```sql
+-- In Supabase Studio SQL Editor
+SET request.jwt.claims = '{"sub": "user-uuid", "role": "authenticated"}';
+SET role TO authenticated;
+SELECT * FROM decisions;  -- Should only return user's decisions
+RESET role;
+```
 
 ## Project Roadmap
 
 - [x] **Step 1**: Monorepo scaffold + tooling
-- [ ] **Step 2**: Supabase setup (schema, RLS, auth)
+- [x] **Step 2**: Supabase setup (schema, RLS, auth)
 - [ ] **Step 3**: Mobile auth + navigation
 - [ ] **Step 4**: Decision Wizard UI
 - [ ] **Step 5**: Backend intake endpoints
@@ -274,6 +348,36 @@ pytest tests/test_health.py
 - [ ] **Step 8**: Decision Graph
 - [ ] **Step 9**: Simulation + Recommendation
 - [ ] **Step 10**: Tracking + polish
+
+## Troubleshooting
+
+### Supabase Issues
+
+```bash
+# Reset everything
+cd infra/supabase
+supabase stop --no-backup
+supabase start
+
+# Check Docker
+docker ps | grep supabase
+```
+
+### API Issues
+
+```bash
+# Verify JWT secret matches
+cd infra/supabase && supabase status | grep JWT
+# Compare with services/api/.env SUPABASE_JWT_SECRET
+```
+
+### Mobile Issues
+
+```bash
+# Clear Expo cache
+cd apps/mobile
+pnpm start --clear
+```
 
 ## License
 

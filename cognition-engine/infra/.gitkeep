@@ -1,6 +1,0 @@
-# Infrastructure configurations
-# Coming in later steps:
-# - Dockerfile for API
-# - docker-compose.yml for local development
-# - Render/Fly.io deployment configs
-# - Supabase migration scripts
