@@ -1,0 +1,37 @@
+{
+  "name": "cognition-engine",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev:mobile": "pnpm --filter @cognition-engine/mobile dev",
+    "dev:api": "cd services/api && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "build:mobile": "pnpm --filter @cognition-engine/mobile build",
+    "build:shared": "pnpm --filter @cognition-engine/shared build",
+    "lint": "pnpm run lint:ts && pnpm run lint:py",
+    "lint:ts": "eslint 'apps/**/*.{ts,tsx}' 'packages/**/*.{ts,tsx}'",
+    "lint:py": "cd services/api && uv run ruff check . && uv run ruff format --check .",
+    "lint:fix": "pnpm run lint:fix:ts && pnpm run lint:fix:py",
+    "lint:fix:ts": "eslint 'apps/**/*.{ts,tsx}' 'packages/**/*.{ts,tsx}' --fix",
+    "lint:fix:py": "cd services/api && uv run ruff check . --fix && uv run ruff format .",
+    "typecheck": "pnpm --filter @cognition-engine/mobile typecheck && pnpm --filter @cognition-engine/shared typecheck",
+    "test": "pnpm run test:ts && pnpm run test:py",
+    "test:ts": "pnpm --filter @cognition-engine/mobile test && pnpm --filter @cognition-engine/shared test",
+    "test:py": "cd services/api && uv run pytest",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules services/api/.venv",
+    "setup:api": "cd services/api && uv venv && uv sync --dev"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}

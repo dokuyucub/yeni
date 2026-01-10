@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Cognition Engine",
+    "slug": "cognition-engine",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "cognition-engine",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#1a1a2e"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cognitionengine.app"
+    },
+    "android": {
+      "package": "com.cognitionengine.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router", "expo-secure-store"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
