@@ -9,7 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import __version__
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
-from app.routers import health, users
+from app.core.request_id import RequestIdMiddleware
+from app.routers import health, users, decisions
 
 logger = get_logger(__name__)
 
@@ -38,6 +39,9 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # Add request ID middleware first
+    app.add_middleware(RequestIdMiddleware)
+
     # Configure CORS
     app.add_middleware(
         CORSMiddleware,
@@ -45,11 +49,13 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["X-Request-Id"],
     )
 
     # Include routers
     app.include_router(health.router, tags=["Health"])
     app.include_router(users.router, tags=["Users"])
+    app.include_router(decisions.router, tags=["Decisions"])
 
     return app
 
