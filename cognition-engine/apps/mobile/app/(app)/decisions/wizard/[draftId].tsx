@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useCallback, useRef } from 'react';
-import { Alert, BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, BackHandler, ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
 
@@ -162,8 +162,6 @@ export default function WizardScreen() {
       <SafeAreaView style={styles.container} edges={['top']}>
         <ProgressHeader
           currentStep={currentStep}
-          totalSteps={WIZARD_STEPS.length}
-          title={stepInfo?.title ?? ''}
           onBack={handleBack}
         />
         <ScrollView

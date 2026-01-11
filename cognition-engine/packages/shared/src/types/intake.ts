@@ -15,10 +15,9 @@ export interface DecisionOption {
  * Time horizons for decision impact.
  */
 export interface TimeHorizons {
-  short: boolean; // < 1 year
-  mid: boolean; // 1-5 years
-  long: boolean; // 5+ years
-  custom?: string;
+  decisionDeadline: string;
+  implementationPeriod: string;
+  impactHorizon: string;
 }
 
 /**
@@ -47,64 +46,49 @@ export type ObjectiveKey =
  * Constraints on the decision.
  */
 export interface DecisionConstraints {
-  budget?: number;
-  budgetCurrency?: string;
-  location?: string;
-  legal?: string;
-  timeline?: string;
-  skills?: string;
-  dependencies?: string;
+  budgetMin?: number;
+  budgetMax?: number;
+  mustHaves: string;
+  cantDo: string;
 }
 
 /**
  * Stakeholders affected by the decision.
  */
 export interface DecisionStakeholders {
-  affected?: string;
-  deciders?: string;
-  influencers?: string;
+  decisionMaker: string;
+  influencers: string;
+  affected: string;
 }
 
 /**
  * Available resources.
  */
 export interface DecisionResources {
-  money?: number;
-  moneyCurrency?: string;
-  timeHoursPerWeek?: number;
-  network?: string;
-  tools?: string;
-  credibility?: string;
+  available: string;
+  needed: string;
 }
 
 /**
  * Risk tolerance level.
  */
-export type RiskTolerance = 'low' | 'medium' | 'high';
-
-/**
- * Maximum acceptable loss definition.
- */
-export interface MaxAcceptableLoss {
-  amount: number;
-  unit: 'money' | 'hours';
-  currency?: string;
-}
+export type RiskTolerance = 'conservative' | 'moderate' | 'aggressive';
 
 /**
  * Risk configuration.
  */
 export interface DecisionRisk {
   tolerance: RiskTolerance;
-  maxAcceptableLoss?: MaxAcceptableLoss;
+  maxAcceptableLoss: string;
 }
 
 /**
  * Gut preference (optional).
  */
 export interface GutPreference {
-  optionLabel?: string;
-  reason?: string;
+  optionLabel: string;
+  confidence: number;
+  reason: string;
 }
 
 /**
@@ -167,6 +151,7 @@ export interface WizardStep {
   index: number;
   key: string;
   title: string;
+  description: string;
   route: string;
 }
 
@@ -204,11 +189,11 @@ export const OBJECTIVE_LABELS: Record<ObjectiveKey, string> = {
  * Wizard steps configuration.
  */
 export const WIZARD_STEPS: WizardStep[] = [
-  { index: 0, key: 'basics', title: 'Basics', route: 'basics' },
-  { index: 1, key: 'options', title: 'Options', route: 'options' },
-  { index: 2, key: 'horizons', title: 'Horizons & Goals', route: 'horizons' },
-  { index: 3, key: 'constraints', title: 'Constraints', route: 'constraints' },
-  { index: 4, key: 'risk', title: 'Risk', route: 'risk' },
-  { index: 5, key: 'baseline', title: 'Outcomes', route: 'baseline' },
-  { index: 6, key: 'review', title: 'Review', route: 'review' },
+  { index: 0, key: 'basics', title: 'Basics', description: 'Define your decision title and problem statement.', route: 'basics' },
+  { index: 1, key: 'options', title: 'Options', description: 'List the options you are considering.', route: 'options' },
+  { index: 2, key: 'horizons', title: 'Horizons & Goals', description: 'Set time horizons and prioritize your objectives.', route: 'horizons' },
+  { index: 3, key: 'constraints', title: 'Constraints', description: 'Define constraints, resources, and stakeholders.', route: 'constraints' },
+  { index: 4, key: 'risk', title: 'Risk', description: 'Set your risk tolerance and identify dealbreakers.', route: 'risk' },
+  { index: 5, key: 'baseline', title: 'Outcomes', description: 'Define success, failure, and your baseline scenario.', route: 'baseline' },
+  { index: 6, key: 'review', title: 'Review', description: 'Review and submit your decision for analysis.', route: 'review' },
 ];

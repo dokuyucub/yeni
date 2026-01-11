@@ -15,7 +15,7 @@ import type {
  * Default objective weights based on risk tolerance.
  */
 const DEFAULT_WEIGHTS_BY_RISK: Record<RiskTolerance, Record<ObjectiveKey, number>> = {
-  low: {
+  conservative: {
     money: 25,
     time: 15,
     freedom: 15,
@@ -26,7 +26,7 @@ const DEFAULT_WEIGHTS_BY_RISK: Record<RiskTolerance, Record<ObjectiveKey, number
     relationships: 10,
     other: 0,
   },
-  medium: {
+  moderate: {
     money: 20,
     time: 10,
     freedom: 20,
@@ -37,7 +37,7 @@ const DEFAULT_WEIGHTS_BY_RISK: Record<RiskTolerance, Record<ObjectiveKey, number
     relationships: 5,
     other: 0,
   },
-  high: {
+  aggressive: {
     money: 30,
     time: 5,
     freedom: 10,
@@ -250,7 +250,7 @@ export function isDraftComplete(intake: Partial<DecisionIntake>): {
 
   // Time horizons
   const horizons = intake.timeHorizons;
-  if (!horizons || (!horizons.short && !horizons.mid && !horizons.long && !horizons.custom)) {
+  if (!horizons || (!horizons.decisionDeadline && !horizons.implementationPeriod && !horizons.impactHorizon)) {
     missingFields.push('Time horizon');
   }
 
