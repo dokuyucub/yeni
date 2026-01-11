@@ -5,7 +5,13 @@
  * Automatically injects auth headers and handles token refresh.
  */
 
-import type { HealthResponse, ApiError, UserMeResponse } from '@cognition-engine/shared';
+import type {
+  HealthResponse,
+  ApiError,
+  UserMeResponse,
+  DecisionIntake,
+  DecisionIntakeResponse,
+} from '@cognition-engine/shared';
 import { env } from '@/config/env';
 import { getAccessToken, refreshSession } from './supabase';
 
@@ -189,6 +195,35 @@ class ApiClient {
    */
   async me(): Promise<UserMeResponse> {
     return this.get<UserMeResponse>('/users/me', { requiresAuth: true });
+  }
+
+  // ============================================================
+  // Decisions API
+  // ============================================================
+
+  /**
+   * Submit a new decision intake (protected endpoint).
+   */
+  async submitDecision(intake: DecisionIntake): Promise<DecisionIntakeResponse> {
+    return this.post<DecisionIntakeResponse>('/decisions', intake, {
+      requiresAuth: true,
+    });
+  }
+
+  /**
+   * Get all decisions for the current user (protected endpoint).
+   */
+  async getDecisions(): Promise<DecisionIntakeResponse[]> {
+    return this.get<DecisionIntakeResponse[]>('/decisions', { requiresAuth: true });
+  }
+
+  /**
+   * Get a single decision by ID (protected endpoint).
+   */
+  async getDecision(id: string): Promise<DecisionIntakeResponse> {
+    return this.get<DecisionIntakeResponse>(`/decisions/${id}`, {
+      requiresAuth: true,
+    });
   }
 }
 

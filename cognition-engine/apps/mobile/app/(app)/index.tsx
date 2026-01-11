@@ -66,19 +66,30 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <View style={styles.featuresCard}>
-          <Text style={styles.featuresTitle}>Coming Soon</Text>
+        <Link href="/(app)/decisions" asChild>
+          <Pressable style={styles.decisionsCard}>
+            <View style={styles.decisionsIcon}>
+              <Text style={styles.decisionsIconText}>🎯</Text>
+            </View>
+            <View style={styles.decisionsContent}>
+              <Text style={styles.decisionsTitle}>Decision Studio</Text>
+              <Text style={styles.decisionsSubtitle}>
+                Create and analyze decisions
+              </Text>
+            </View>
+            <Text style={styles.decisionsArrow}>→</Text>
+          </Pressable>
+        </Link>
+
+        <View style={styles.comingSoonCard}>
+          <Text style={styles.comingSoonTitle}>Coming Soon</Text>
           <View style={styles.featureItem}>
             <Text style={styles.featureBullet}>•</Text>
-            <Text style={styles.featureText}>Decision Studio</Text>
+            <Text style={styles.featureText}>AI Analysis & Simulations</Text>
           </View>
           <View style={styles.featureItem}>
             <Text style={styles.featureBullet}>•</Text>
             <Text style={styles.featureText}>Budget Calculator</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureBullet}>•</Text>
-            <Text style={styles.featureText}>Risk Analysis</Text>
           </View>
           <View style={styles.featureItem}>
             <Text style={styles.featureBullet}>•</Text>
@@ -93,7 +104,7 @@ export default function HomeScreen() {
         </Link>
       </View>
 
-      <Text style={styles.version}>v0.1.0 • Step 3 Complete</Text>
+      <Text style={styles.version}>v0.1.0 • Step 4 Complete</Text>
     </SafeAreaView>
   );
 }
@@ -217,5 +228,58 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     paddingBottom: 24,
+  },
+  decisionsCard: {
+    backgroundColor: '#1a1a2e',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e94560',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  decisionsIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#2a2a4e',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  decisionsIconText: {
+    fontSize: 24,
+  },
+  decisionsContent: {
+    flex: 1,
+  },
+  decisionsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  decisionsSubtitle: {
+    fontSize: 14,
+    color: '#808080',
+    marginTop: 2,
+  },
+  decisionsArrow: {
+    fontSize: 20,
+    color: '#e94560',
+  },
+  comingSoonCard: {
+    backgroundColor: '#1a1a2e',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#2a2a4e',
+  },
+  comingSoonTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#808080',
+    marginBottom: 12,
   },
 });

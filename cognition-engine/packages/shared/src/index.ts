@@ -9,8 +9,10 @@
 export * from './types/api';
 export * from './types/auth';
 export * from './types/decision';
+export * from './types/intake';
 
 // Schemas
 export * from './schemas/api';
 export * from './schemas/auth';
 export * from './schemas/decision';
+export * from './schemas/intake';

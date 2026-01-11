@@ -34,6 +34,19 @@ export default function AppLayout() {
           headerBackTitle: 'Back',
         }}
       />
+      <Stack.Screen
+        name="decisions/index"
+        options={{
+          title: 'My Decisions',
+          headerBackTitle: 'Home',
+        }}
+      />
+      <Stack.Screen
+        name="decisions/wizard/[draftId]"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
