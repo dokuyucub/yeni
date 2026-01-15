@@ -4,3 +4,5 @@ export 'entry_repository.dart';
 export 'artwork_repository.dart';
 export 'journal_repository.dart';
 export 'collection_repository.dart';
+export 'user_repository.dart';
+export 'badge_repository.dart';
