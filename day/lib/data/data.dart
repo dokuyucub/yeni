@@ -10,6 +10,7 @@
 /// - All data models (DailyEntry, Artwork, JournalEntry, Collection, UserProfile, Badge, UserBadge)
 /// - All repositories (EntryRepository, ArtworkRepository, JournalRepository, CollectionRepository, UserRepository, BadgeRepository)
 /// - All services (DatabaseService)
+/// - All providers (Riverpod providers for state management)
 
 // Export models
 export 'models/models.dart';
@@ -19,3 +20,6 @@ export 'repositories/repositories.dart';
 
 // Export services
 export 'services/services.dart';
+
+// Export providers
+export 'providers/providers.dart';
