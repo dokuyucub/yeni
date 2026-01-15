@@ -4,3 +4,6 @@ export 'daily_entry.dart';
 export 'artwork.dart';
 export 'journal_entry.dart';
 export 'collection.dart';
+export 'user_profile.dart';
+export 'badge.dart';
+export 'user_badge.dart';
