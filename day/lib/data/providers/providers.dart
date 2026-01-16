@@ -5,3 +5,5 @@ export 'repository_providers.dart';
 export 'user_provider.dart';
 export 'entry_providers.dart';
 export 'streak_provider.dart';
+export 'artwork_providers.dart';
+export 'collection_providers.dart';
