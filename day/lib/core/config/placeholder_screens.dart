@@ -1,16 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../core.dart';
+import '../../data/data.dart';
+import 'app_router.dart';
 
 /// Placeholder screen for Splash
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateAfterDelay();
+  }
+
+  Future<void> _navigateAfterDelay() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      final userAsync = ref.read(userProfileProvider);
+      userAsync.whenData((user) {
+        if (user.hasCompletedOnboarding) {
+          context.go(AppRoutes.home);
+        } else {
+          context.go(AppRoutes.onboarding);
+        }
+      });
+      // Fallback to home if user data not ready
+      context.go(AppRoutes.home);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Splash')),
-      body: const Center(
-        child: Text('Splash Screen'),
+      backgroundColor: AppColors.accent,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Day',
+              style: AppTypography.displayLarge(context).copyWith(
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Your life, in color',
+              style: AppTypography.body(context).copyWith(
+                color: Colors.white.withOpacity(0.8),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -32,79 +80,76 @@ class OnboardingScreen extends StatelessWidget {
 }
 
 /// Main shell with bottom navigation
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   final Widget child;
 
   const MainShell({super.key, required this.child});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
-  int _currentIndex = 0;
-
-  void _onTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        context.go('/home');
-        break;
-      case 1:
-        context.go('/gallery');
-        break;
-      case 2:
-        context.go('/journal');
-        break;
-      case 3:
-        context.go('/profile');
-        break;
-    }
-  }
-
+class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
-    // Update current index based on current location
-    final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/home')) {
-      _currentIndex = 0;
-    } else if (location.startsWith('/gallery')) {
-      _currentIndex = 1;
-    } else if (location.startsWith('/journal')) {
-      _currentIndex = 2;
-    } else if (location.startsWith('/profile')) {
-      _currentIndex = 3;
-    }
-
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTap,
+        currentIndex: _calculateSelectedIndex(context),
+        onTap: (index) => _onItemTapped(index, context),
         type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.accent,
+        unselectedItemColor: AppColors.labelTertiary(context),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.today),
+            icon: Icon(Icons.today_outlined),
+            activeIcon: Icon(Icons.today),
             label: 'Today',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.palette),
+            icon: Icon(Icons.grid_view_outlined),
+            activeIcon: Icon(Icons.grid_view),
             label: 'Gallery',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
+            icon: Icon(Icons.edit_note_outlined),
+            activeIcon: Icon(Icons.edit_note),
             label: 'Journal',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],
       ),
     );
+  }
+
+  int _calculateSelectedIndex(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/gallery')) return 1;
+    if (location.startsWith('/journal')) return 2;
+    if (location.startsWith('/profile')) return 3;
+    return 0;
+  }
+
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        context.go(AppRoutes.home);
+        break;
+      case 1:
+        context.go(AppRoutes.gallery);
+        break;
+      case 2:
+        context.go(AppRoutes.journal);
+        break;
+      case 3:
+        context.go(AppRoutes.profile);
+        break;
+    }
   }
 }
 
