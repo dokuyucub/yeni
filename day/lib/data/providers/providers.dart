@@ -3,3 +3,5 @@
 export 'database_provider.dart';
 export 'repository_providers.dart';
 export 'user_provider.dart';
+export 'entry_providers.dart';
+export 'streak_provider.dart';
