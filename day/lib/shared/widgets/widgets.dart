@@ -2,3 +2,4 @@
 /// Import this file to access all reusable widgets throughout the app
 export 'day_button.dart';
 export 'day_card.dart';
+export 'day_app_bar.dart';
